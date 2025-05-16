@@ -1,0 +1,36 @@
+<div class="container">
+    <h1>To-Do App</h1>
+
+    <h3>Mes tâches favorites</h3>
+
+    <div>Aucune tâche favorite</div>
+    <!--Ajouter ici la liste des tâches favorites-->
+
+
+    @if (showAddTask){
+        <div class="modal-backdrop" (click)="showAddTask = false">
+            <div class="modal" (click)="$event.stopPropagation()">
+                <h2>Nouvelle tâche</h2>
+                <input type="text" [(ngModel)]="newTaskTitle" placeholder="Titre de la tâche">
+                <input type="datetime-local" [(ngModel)]="newTaskDeadline" placeholder="Deadline de la tâche">
+                <div class="modal-actions">
+                    <button (click)="showAddTask = false">Annuler</button>
+                    <button (click)="addTask(); showAddTask = false" [disabled]="!newTaskTitle">Ajouter</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <h3 style="margin-top: 50px">Toutes mes tâches</h3>
+    <button (click)="showAddTask = true">Ajouter une tâche</button>
+
+    <div class="task-list">
+        @for (task of tasks; track task.id){
+            <div class="task-item">
+                <input type="checkbox" [checked]="task.completed" (change)="toggleCompleted(task)">
+                <span>{{ task.title }}</span>
+                <button (click)="deleteTask(task.id)">Supprimer</button>
+            </div>
+        }
+    </div>
+</div>
