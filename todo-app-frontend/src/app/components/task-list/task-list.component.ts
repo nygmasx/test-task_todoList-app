@@ -33,12 +33,16 @@ export class TaskListComponent implements OnInit {
   }
 
   async loadTasks() {
-    const tasks = await firstValueFrom(this.taskService.getTasks());
-    if (Array.isArray(tasks)) {
-      this.tasks = this.sortTasks(tasks.reverse());
-      this.filteredTasks = [...this.tasks];
-      this.favoriteTasks = this.tasks.filter(task => task.favorite);
-      this.cdr.detectChanges();
+    try {
+      const tasks = await firstValueFrom(this.taskService.getTasks());
+      if (Array.isArray(tasks)) {
+        this.tasks = this.sortTasks(tasks.reverse());
+        this.filteredTasks = [...this.tasks];
+        this.favoriteTasks = this.tasks.filter(task => task.favorite);
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des tâches:', error);
     }
   }
 
@@ -82,15 +86,19 @@ export class TaskListComponent implements OnInit {
   }
 
   async toggleFavorite(task: Task) {
-    const updatedTask = await firstValueFrom(
-      this.taskService.updateTask(task.id, {favorite: !task.favorite})
-    );
-    if (updatedTask) {
-      task.favorite = !task.favorite;
-      this.tasks = this.sortTasks([...this.tasks]);
-      this.filteredTasks = this.sortTasks([...this.filteredTasks]);
-      this.favoriteTasks = this.tasks.filter(task => task.favorite);
-      this.cdr.detectChanges();
+    try {
+      const updatedTask = await firstValueFrom(
+        this.taskService.updateTask(task.id, {favorite: !task.favorite})
+      );
+      if (updatedTask) {
+        task.favorite = !task.favorite;
+        this.tasks = this.sortTasks([...this.tasks]);
+        this.filteredTasks = this.sortTasks([...this.filteredTasks]);
+        this.favoriteTasks = this.tasks.filter(task => task.favorite);
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du favori:', error);
     }
   }
 
@@ -118,45 +126,59 @@ export class TaskListComponent implements OnInit {
   }
 
   async toggleCompleted(task: Task) {
-    const updatedTask = await firstValueFrom(
-      this.taskService.updateTask(task.id, {completed: !task.completed})
-    );
-    if (updatedTask) {
-      task.completed = !task.completed;
-      this.cdr.detectChanges();
+    try {
+      const updatedTask = await firstValueFrom(
+        this.taskService.updateTask(task.id, {completed: !task.completed})
+      );
+      if (updatedTask) {
+        task.completed = !task.completed;
+        this.cdr.detectChanges();
+      }
+    } catch (error){
+      console.error('Erreur lors de la mise à jour du statut de completion:', error);
     }
   }
 
   async deleteTask(id: string) {
-    await firstValueFrom(this.taskService.deleteTask(id));
-    this.tasks = this.tasks.filter(task => task.id !== id);
-    this.filteredTasks = this.filteredTasks.filter(task => task.id !== id);
-    this.favoriteTasks = this.favoriteTasks.filter(task => task.id !== id);
-    this.cdr.detectChanges();
+    try {
+      await firstValueFrom(this.taskService.deleteTask(id));
+      this.tasks = this.tasks.filter(task => task.id !== id);
+      this.filteredTasks = this.filteredTasks.filter(task => task.id !== id);
+      this.favoriteTasks = this.favoriteTasks.filter(task => task.id !== id);
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la tâche:', error);
+    }
   }
 
   formatDeadline(deadline: string | number): string {
-    const date = new Date(deadline);
-    const now = new Date();
+    try {
+      const date = new Date(deadline);
+      const now = new Date();
 
-    const isToday = date.toDateString() === now.toDateString();
+      const isToday = date.toDateString() === now.toDateString();
 
-    const isPast = date < now;
+      const isPast = date < now;
 
-    const formatted = date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+      const formatted = date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
-    if (isPast) {
-      return `${formatted} (DÉPASSÉ)`;
-    } else if (isToday) {
-      return `${formatted} (AUJOURD'HUI)`;
+      if (isPast) {
+        return `${formatted} (DÉPASSÉ)`;
+      } else if (isToday) {
+        return `${formatted} (AUJOURD'HUI)`;
+      }
+
+      return formatted;
+    } catch (error) {
+      console.error('Erreur lors du formatage de la date:', error);
+      return 'Erreur de format de date';
     }
 
-    return formatted;
   }
 }
