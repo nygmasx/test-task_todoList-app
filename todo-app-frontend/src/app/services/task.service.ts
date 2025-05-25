@@ -16,6 +16,10 @@ export class TaskService {
     return this.http.post<Task>(API_URL + '/task', { title, deadline });
   }
 
+  updateTask(id: string, data: Partial<Task>){
+    return this.http.put<Task>(`${API_URL}/task/${id}`, data);
+  }
+
   deleteTask(id: string) {
     return this.http.delete(`${API_URL}/task/${id}`);
   }

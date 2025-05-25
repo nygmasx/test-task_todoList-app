@@ -1,36 +1,68 @@
 <div class="container">
-    <h1>To-Do App</h1>
+  <h1>To-Do App</h1>
 
-    <h3>Mes tâches favorites</h3>
+  <h3>Mes tâches favorites</h3>
 
-    <div>Aucune tâche favorite</div>
-    <!--Ajouter ici la liste des tâches favorites-->
-
-
-    @if (showAddTask){
-        <div class="modal-backdrop" (click)="showAddTask = false">
-            <div class="modal" (click)="$event.stopPropagation()">
-                <h2>Nouvelle tâche</h2>
-                <input type="text" [(ngModel)]="newTaskTitle" placeholder="Titre de la tâche">
-                <input type="datetime-local" [(ngModel)]="newTaskDeadline" placeholder="Deadline de la tâche">
-                <div class="modal-actions">
-                    <button (click)="showAddTask = false">Annuler</button>
-                    <button (click)="addTask(); showAddTask = false" [disabled]="!newTaskTitle">Ajouter</button>
-                </div>
-            </div>
-        </div>
+  <!--Ajouter ici la liste des tâches favorites-->
+  <div class="task-list">
+    @if (favoriteTasks.length === 0) {
+      <div>Aucune tâche favorite</div>
     }
+    @for (task of favoriteTasks; track task.id) {
+      <div class="task-item" [ngClass]="getTaskClass(task)">
+        <input type="checkbox" [checked]="task.completed" (change)="toggleCompleted(task)">
+        <div class="task-content">
+          <span>{{ task.title }}</span>
+          <small class="deadline" *ngIf="task.deadline">
+            Échéance : {{ formatDeadline(task.deadline) }}
+          </small>
+        </div>
+        <button class="favorite-btn" (click)="toggleFavorite(task)">
+          {{ task.favorite ? '★' : '☆' }}
+        </button>
+      </div>
+    }
+  </div>
 
-    <h3 style="margin-top: 50px">Toutes mes tâches</h3>
-    <button (click)="showAddTask = true">Ajouter une tâche</button>
-
-    <div class="task-list">
-        @for (task of tasks; track task.id){
-            <div class="task-item">
-                <input type="checkbox" [checked]="task.completed" (change)="toggleCompleted(task)">
-                <span>{{ task.title }}</span>
-                <button (click)="deleteTask(task.id)">Supprimer</button>
-            </div>
-        }
+  @if (showAddTask) {
+    <div class="modal-backdrop" (click)="showAddTask = false">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Nouvelle tâche</h2>
+        <input type="text" [(ngModel)]="newTaskTitle" placeholder="Titre de la tâche">
+        <input type="datetime-local" [(ngModel)]="newTaskDeadline" placeholder="Deadline de la tâche">
+        <div class="modal-actions">
+          <button (click)="showAddTask = false">Annuler</button>
+          <button (click)="addTask(); showAddTask = false" [disabled]="!newTaskTitle">Ajouter</button>
+        </div>
+      </div>
     </div>
+  }
+
+  <h3 style="margin-top: 50px">Toutes mes tâches</h3>
+  <div class="search-bar">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="filterTasks()"
+      placeholder="Rechercher une tâche...">
+  </div>
+  <button (click)="showAddTask = true">Ajouter une tâche</button>
+
+  <div class="task-list">
+    @for (task of filteredTasks; track task.id) {
+      <div class="task-item" [ngClass]="getTaskClass(task)">
+        <div class="">
+          <input type="checkbox" [checked]="task.completed" (change)="toggleCompleted(task)">
+          <span>{{ task.title }}</span>
+        </div>
+        <span class="deadline" *ngIf="task.deadline">
+            Échéance : {{ formatDeadline(task.deadline) }}
+        </span>
+        <div>
+          <button (click)="deleteTask(task.id)">Supprimer</button>
+          <button class="favorite" (click)="toggleFavorite(task)">Ajouter aux favoris</button>
+        </div>
+      </div>
+    }
+  </div>
 </div>
