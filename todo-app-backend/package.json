@@ -6,6 +6,7 @@
   "keywords": [],
   "dependencies": {
     "@sailshq/lodash": "^3.10.6",
+    "dotenv": "^16.5.0",
     "sails": "^1.5.14",
     "sails-hook-orm": "^4.0.3",
     "sails-mongo": "^2.1.2"
